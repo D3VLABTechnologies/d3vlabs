@@ -100,15 +100,20 @@ export function TechStack() {
       setIsMobile(window.innerWidth < 768);
     };
 
+    const startRandomConnections = () => {
+      generateRandomConnection();
+    };
+
     // Check initial
     checkMobile();
+    startRandomConnections();
 
     // Add resize listener
     window.addEventListener("resize", checkMobile);
 
     // Cleanup
     return () => window.removeEventListener("resize", checkMobile);
-  }, []);
+  }, [generateRandomConnection]);
 
   const generatePath = (
     from: (typeof techIcons)[0],

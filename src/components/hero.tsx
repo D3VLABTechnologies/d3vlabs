@@ -58,7 +58,7 @@ export function Hero() {
                 transition={{ duration: 0.5, delay: 1 }}
               >
                 Pioneering the next generation of software and hardware
-                solutions that redefine what's possible.
+                solutions that redefine what&apos;s possible.
               </motion.p>
             </motion.div>
           </motion.div>
