@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "npx serve@latest out",
     "lint": "next lint"
   },
   "dependencies": {
@@ -20,7 +20,8 @@
     "react-dom": "^18.2.0",
     "react-syntax-highlighter": "^15.6.1",
     "sonner": "^1.7.0",
-    "tailwind-merge": "^2.5.5"
+    "tailwind-merge": "^2.5.5",
+    "serve": "^14.2.1"
   },
   "devDependencies": {
     "@types/node": "^20",
