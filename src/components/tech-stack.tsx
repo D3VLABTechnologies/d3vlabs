@@ -17,7 +17,7 @@ export function TechStack() {
       {
         icon: "/icons/python.svg",
         name: "Python",
-        x: "30%", // Using percentages for better responsiveness
+        x: "30%",
         y: "20%",
         mobileX: "25%",
         mobileY: "15%",
@@ -189,52 +189,96 @@ export function TechStack() {
 
         {/* Right side - Tech Icons with dynamic glow connections */}
         <div className="w-full lg:w-2/3 relative h-[400px] md:h-[500px] lg:h-[400px] -mx-4 md:mx-0 md:-mr-20 mt-8 lg:mt-0">
-          {/* SVG container with responsive scaling */}
-          <div className="absolute inset-0 scale-90 md:scale-100 origin-center">
-            {/* Glowing Connections SVG */}
-            <svg className="absolute inset-0 w-full h-full">
-              <defs>
-                <linearGradient id="glow" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="rgba(234, 192, 26, 0)" />
-                  <stop offset="50%" stopColor="rgba(234, 192, 26, 1)" />
-                  <stop offset="100%" stopColor="rgba(234, 192, 26, 0)" />
-                </linearGradient>
-                <filter id="blur">
-                  <feGaussianBlur stdDeviation="4" />
-                  <feColorMatrix
-                    type="matrix"
-                    values="0 0 0 0 0.917647
-                            0 0 0 0 0.752941
-                            0 0 0 0 0.101961
-                            0 0 0 0.6 0"
-                  />
-                </filter>
-              </defs>
+          {/* Grid Pattern */}
+          <div className="absolute inset-0 overflow-hidden">
+            {/* Vertical lines */}
+            <div
+              className="absolute inset-0 opacity-[0.07]"
+              style={{
+                backgroundImage: `
+                  linear-gradient(to right, transparent, transparent 49.9%, rgba(96, 165, 250, 0.3) 49.9%, rgba(96, 165, 250, 0.3) 50.1%, transparent 50.1%),
+                  linear-gradient(to bottom, transparent, transparent 49.9%, rgba(96, 165, 250, 0.3) 49.9%, rgba(96, 165, 250, 0.3) 50.1%, transparent 50.1%)
+                `,
+                backgroundSize: "50px 50px",
+              }}
+            />
 
-              {paths.map((path, index) => (
-                <motion.path
-                  key={index}
-                  d={path}
-                  stroke="url(#glow)"
-                  strokeWidth="6"
-                  fill="none"
-                  filter="url(#blur)"
-                  initial={{ pathLength: 0, opacity: 0 }}
-                  animate={{
-                    pathLength: [0, 1],
-                    opacity: [0, 1, 0],
+            {/* Grid dots */}
+            <div
+              className="absolute inset-0 opacity-[0.15]"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle at center, rgba(96, 165, 250, 0.3) 1px, transparent 1px)",
+                backgroundSize: "25px 25px",
+              }}
+            />
+
+            {/* Glowing areas */}
+            <div className="absolute inset-0">
+              <div className="absolute top-1/4 -left-1/4 w-1/2 h-1/2 bg-blue-500/5 rounded-full blur-[100px]" />
+              <div className="absolute bottom-1/4 -right-1/4 w-1/2 h-1/2 bg-purple-500/5 rounded-full blur-[100px]" />
+            </div>
+          </div>
+
+          <div className="absolute inset-0 scale-90 md:scale-100 origin-center">
+            {/* Moving Glow Lines */}
+            {Array.from({ length: 8 }).map((_, index) => {
+              // Randomly select start and end icons
+              const randomStart = Math.floor(Math.random() * techIcons.length);
+              let randomEnd = Math.floor(Math.random() * techIcons.length);
+
+              // Ensure we don't connect to the same icon
+              while (randomEnd === randomStart) {
+                randomEnd = Math.floor(Math.random() * techIcons.length);
+              }
+
+              const from = techIcons[randomStart];
+              const to = techIcons[randomEnd];
+
+              const fromX = parseFloat(isMobile ? from.mobileX : from.x);
+              const fromY = parseFloat(isMobile ? from.mobileY : from.y);
+              const toX = parseFloat(isMobile ? to.mobileX : to.x);
+              const toY = parseFloat(isMobile ? to.mobileY : to.y);
+
+              // Calculate the distance and angle
+              const distance = Math.sqrt(
+                Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2)
+              );
+              const angle =
+                Math.atan2(toY - fromY, toX - fromX) * (180 / Math.PI);
+
+              return (
+                <div
+                  key={`glow-line-${index}`}
+                  className="absolute top-0 left-0 w-full h-full"
+                  style={{
+                    transform: `rotate(${angle}deg)`,
+                    transformOrigin: `${fromX}% ${fromY}%`,
                   }}
-                  transition={{
-                    duration: 2,
-                    ease: "easeInOut",
-                    repeat: Infinity,
-                    delay: index * 0.3,
-                    repeatDelay: 0.5,
-                  }}
-                  onAnimationComplete={() => updatePath(index)}
-                />
-              ))}
-            </svg>
+                >
+                  <motion.div
+                    className="absolute h-[2px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"
+                    style={{
+                      width: "40px",
+                      left: `${fromX}%`,
+                      top: `${fromY}%`,
+                    }}
+                    animate={{
+                      x: [0, distance],
+                      opacity: [0, 1, 1, 0],
+                      scale: [1, 1.2, 1],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      delay: index * 0.5,
+                      repeatDelay: Math.random() * 3 + 1,
+                      ease: "linear",
+                    }}
+                  />
+                </div>
+              );
+            })}
 
             {/* Tech Icons */}
             {techIcons.map((tech, index) => (
