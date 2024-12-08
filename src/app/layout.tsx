@@ -6,9 +6,32 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "D3V.LAB - Where Innovation Meets Creation",
-  description:
-    "Pioneering the future through cutting-edge software and hardware solutions.",
+  title: "D3VLABS",
+  description: "Where innovation meets creation",
+  icons: {
+    icon: [
+      {
+        url: "/favicon.ico",
+        sizes: "any",
+      },
+      {
+        url: "/icon.png",
+        type: "image/png",
+        sizes: "512x512",
+      },
+    ],
+    apple: {
+      url: "/apple-icon.png",
+      type: "image/png",
+      sizes: "192x192",
+    },
+    other: [
+      {
+        rel: "apple-touch-icon",
+        url: "/apple-icon.png",
+      },
+    ],
+  },
 };
 
 export default function RootLayout({
