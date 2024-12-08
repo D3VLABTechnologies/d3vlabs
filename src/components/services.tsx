@@ -6,6 +6,7 @@ import { ArrowRight } from "lucide-react";
 import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useState, useEffect } from "react";
+import type { TextAlign } from "react-syntax-highlighter";
 
 interface Service {
   title: string;
@@ -43,11 +44,11 @@ function useResponsiveStyles() {
       fontSize: isSmallScreen ? "0.75rem" : "0.875rem",
     },
     lineNumberStyle: {
-      minWidth: isSmallScreen ? "2em" : "2.5em",
+      minWidth: "2.5em",
       paddingRight: "1em",
       color: "#666",
-      textAlign: "right",
-      fontSize: isSmallScreen ? "0.75rem" : "0.875rem",
+      textAlign: "right" as TextAlign,
+      fontSize: "0.8em",
     },
   };
 }

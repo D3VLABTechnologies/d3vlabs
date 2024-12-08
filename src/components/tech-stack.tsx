@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 interface Connection {
   from: string;
@@ -94,63 +94,53 @@ export function TechStack() {
   const [paths, setPaths] = useState<string[]>([]);
   const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    // Handle initial screen size
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+  const generatePath = useCallback(
+    (from: (typeof techIcons)[0], to: (typeof techIcons)[0]) => {
+      // Convert percentage strings to numbers for calculations
+      const fromX = parseFloat(from.x) / 100;
+      const fromY = parseFloat(from.y) / 100;
+      const toX = parseFloat(to.x) / 100;
+      const toY = parseFloat(to.y) / 100;
 
-    const startRandomConnections = () => {
-      generateRandomConnection();
-    };
+      // Calculate control point for the quadratic curve
+      const midX = (fromX + toX) / 2 + (Math.random() * 0.2 - 0.1);
+      const midY = (fromY + toY) / 2 + (Math.random() * 0.2 - 0.1);
 
-    // Check initial
-    checkMobile();
-    startRandomConnections();
+      // Convert back to percentage strings for the SVG path
+      return `M${fromX * 100}%,${fromY * 100}% Q${midX * 100}%,${midY * 100}% ${
+        toX * 100
+      }%,${toY * 100}%`;
+    },
+    []
+  );
 
-    // Add resize listener
-    window.addEventListener("resize", checkMobile);
-
-    // Cleanup
-    return () => window.removeEventListener("resize", checkMobile);
-  }, [generateRandomConnection]);
-
-  const generatePath = (
-    from: (typeof techIcons)[0],
-    to: (typeof techIcons)[0]
-  ) => {
-    // Convert percentage strings to numbers for calculations
-    const fromX = parseFloat(from.x) / 100;
-    const fromY = parseFloat(from.y) / 100;
-    const toX = parseFloat(to.x) / 100;
-    const toY = parseFloat(to.y) / 100;
-
-    // Calculate control point for the quadratic curve
-    const midX = (fromX + toX) / 2 + (Math.random() * 0.2 - 0.1);
-    const midY = (fromY + toY) / 2 + (Math.random() * 0.2 - 0.1);
-
-    // Convert back to percentage strings for the SVG path
-    return `M${fromX * 100}%,${fromY * 100}% Q${midX * 100}%,${midY * 100}% ${
-      toX * 100
-    }%,${toY * 100}%`;
-  };
-
-  const generateRandomConnection = () => {
+  const generateRandomConnection = useCallback(() => {
     const from = techIcons[Math.floor(Math.random() * techIcons.length)];
     let to = techIcons[Math.floor(Math.random() * techIcons.length)];
 
-    // Ensure we don't connect an icon to itself
     while (to === from) {
       to = techIcons[Math.floor(Math.random() * techIcons.length)];
     }
 
     return generatePath(from, to);
-  };
+  }, [generatePath]);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    generateRandomConnection();
+
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, [generateRandomConnection]);
 
   // Initialize paths
   useEffect(() => {
     setPaths(Array.from({ length: 12 }, () => generateRandomConnection()));
-  }, []);
+  }, [generateRandomConnection]);
 
   // Update path when animation completes
   const updatePath = (index: number) => {
