@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState } from "react";
 
 interface Connection {
   from: string;
@@ -11,147 +11,150 @@ interface Connection {
 }
 
 export function TechStack() {
-  const techIcons = useMemo(
-    () => [
-      // Top row
-      {
-        icon: "/icons/python.svg",
-        name: "Python",
-        x: "30%",
-        y: "20%",
-        mobileX: "25%",
-        mobileY: "15%",
-      },
-      {
-        icon: "/icons/next.svg",
-        name: "Next.js",
-        x: "50%",
-        y: "20%",
-        mobileX: "50%",
-        mobileY: "15%",
-      },
-      {
-        icon: "/icons/tailwind.svg",
-        name: "Tailwind",
-        x: "70%",
-        y: "20%",
-        mobileX: "75%",
-        mobileY: "15%",
-      },
+  const techIcons = [
+    // Top row - Adjusted positions for better mobile/tablet display
+    {
+      icon: "/icons/python.svg",
+      name: "Python",
+      x: "30%", // Using percentages for better responsiveness
+      y: "20%",
+      mobileX: "25%",
+      mobileY: "15%",
+    },
+    {
+      icon: "/icons/next.svg",
+      name: "Next.js",
+      x: "50%",
+      y: "20%",
+      mobileX: "50%",
+      mobileY: "15%",
+    },
+    {
+      icon: "/icons/tailwind.svg",
+      name: "Tailwind",
+      x: "70%",
+      y: "20%",
+      mobileX: "75%",
+      mobileY: "15%",
+    },
 
-      // Middle row
-      {
-        icon: "/icons/aws.svg",
-        name: "AWS",
-        x: "25%",
-        y: "50%",
-        mobileX: "25%",
-        mobileY: "50%",
-      },
-      {
-        icon: "/icons/react.svg",
-        name: "React",
-        x: "45%",
-        y: "50%",
-        mobileX: "50%",
-        mobileY: "50%",
-      },
-      {
-        icon: "/icons/docker.svg",
-        name: "Docker",
-        x: "65%",
-        y: "50%",
-        mobileX: "75%",
-        mobileY: "50%",
-      },
+    // Middle row
+    {
+      icon: "/icons/aws.svg",
+      name: "AWS",
+      x: "25%",
+      y: "50%",
+      mobileX: "25%",
+      mobileY: "50%",
+    },
+    {
+      icon: "/icons/react.svg",
+      name: "React",
+      x: "45%",
+      y: "50%",
+      mobileX: "50%",
+      mobileY: "50%",
+    },
+    {
+      icon: "/icons/docker.svg",
+      name: "Docker",
+      x: "65%",
+      y: "50%",
+      mobileX: "75%",
+      mobileY: "50%",
+    },
 
-      // Bottom row
-      {
-        icon: "/icons/swift.svg",
-        name: "Swift",
-        x: "30%",
-        y: "80%",
-        mobileX: "25%",
-        mobileY: "85%",
-      },
-      {
-        icon: "/icons/github.svg",
-        name: "GitHub",
-        x: "50%",
-        y: "80%",
-        mobileX: "50%",
-        mobileY: "85%",
-      },
-      {
-        icon: "/icons/node.svg",
-        name: "Node.js",
-        x: "70%",
-        y: "80%",
-        mobileX: "75%",
-        mobileY: "85%",
-      },
-    ],
-    []
-  );
+    // Bottom row
+    {
+      icon: "/icons/swift.svg",
+      name: "Swift",
+      x: "30%",
+      y: "80%",
+      mobileX: "25%",
+      mobileY: "85%",
+    },
+    {
+      icon: "/icons/github.svg",
+      name: "GitHub",
+      x: "50%",
+      y: "80%",
+      mobileX: "50%",
+      mobileY: "85%",
+    },
+    {
+      icon: "/icons/node.svg",
+      name: "Node.js",
+      x: "70%",
+      y: "80%",
+      mobileX: "75%",
+      mobileY: "85%",
+    },
+  ];
 
   const [paths, setPaths] = useState<string[]>([]);
   const [isMobile, setIsMobile] = useState(false);
 
-  const generatePath = useCallback(
-    (from: (typeof techIcons)[0], to: (typeof techIcons)[0]) => {
-      const fromX = parseFloat(from.x) / 100;
-      const fromY = parseFloat(from.y) / 100;
-      const toX = parseFloat(to.x) / 100;
-      const toY = parseFloat(to.y) / 100;
+  useEffect(() => {
+    // Handle initial screen size
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
 
-      const midX = (fromX + toX) / 2 + (Math.random() * 0.2 - 0.1);
-      const midY = (fromY + toY) / 2 + (Math.random() * 0.2 - 0.1);
+    // Check initial
+    checkMobile();
 
-      return `M${fromX * 100}%,${fromY * 100}% Q${midX * 100}%,${midY * 100}% ${
-        toX * 100
-      }%,${toY * 100}%`;
-    },
-    []
-  );
+    // Add resize listener
+    window.addEventListener("resize", checkMobile);
 
-  const generateRandomConnection = useCallback(() => {
+    // Cleanup
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  const generatePath = (
+    from: (typeof techIcons)[0],
+    to: (typeof techIcons)[0]
+  ) => {
+    // Convert percentage strings to numbers for calculations
+    const fromX = parseFloat(from.x) / 100;
+    const fromY = parseFloat(from.y) / 100;
+    const toX = parseFloat(to.x) / 100;
+    const toY = parseFloat(to.y) / 100;
+
+    // Calculate control point for the quadratic curve
+    const midX = (fromX + toX) / 2 + (Math.random() * 0.2 - 0.1);
+    const midY = (fromY + toY) / 2 + (Math.random() * 0.2 - 0.1);
+
+    // Convert back to percentage strings for the SVG path
+    return `M${fromX * 100}%,${fromY * 100}% Q${midX * 100}%,${midY * 100}% ${
+      toX * 100
+    }%,${toY * 100}%`;
+  };
+
+  const generateRandomConnection = () => {
     const from = techIcons[Math.floor(Math.random() * techIcons.length)];
     let to = techIcons[Math.floor(Math.random() * techIcons.length)];
 
+    // Ensure we don't connect an icon to itself
     while (to === from) {
       to = techIcons[Math.floor(Math.random() * techIcons.length)];
     }
 
     return generatePath(from, to);
-  }, [techIcons, generatePath]);
+  };
 
+  // Initialize paths
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    setPaths(Array.from({ length: 12 }, () => generateRandomConnection()));
   }, []);
 
-  useEffect(() => {
-    const initialPaths = Array.from({ length: 12 }, () =>
-      generateRandomConnection()
-    );
-    setPaths(initialPaths);
-  }, [generateRandomConnection]);
-
-  const updatePath = useCallback(
-    (index: number) => {
-      setPaths((currentPaths) => {
-        const newPaths = [...currentPaths];
-        newPaths[index] = generateRandomConnection();
-        return newPaths;
-      });
-    },
-    [generateRandomConnection]
-  );
+  // Update path when animation completes
+  const updatePath = (index: number) => {
+    setPaths((currentPaths) => {
+      const newPaths = [...currentPaths];
+      newPaths[index] = generateRandomConnection();
+      return newPaths;
+    });
+  };
 
   return (
     <section

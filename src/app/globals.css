@@ -1,47 +1,48 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
- 
+
 @layer base {
   :root {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
- 
+
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
- 
+
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
- 
+
     --primary: 45 100% 50%;
     --primary-foreground: 222.2 47.4% 11.2%;
- 
+
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
- 
+
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
- 
+
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
- 
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
- 
+
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
- 
+
     --radius: 0.5rem;
   }
 }
- 
+
 @layer base {
-  html, body {
+  html,
+  body {
     overflow-x: hidden;
     max-width: 100%;
   }
-  
+
   * {
     @apply border-border;
   }
@@ -51,9 +52,15 @@
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
 }
 
 .animate-float {
@@ -61,9 +68,15 @@
 }
 
 @keyframes pulse {
-  0% { opacity: 0.8; }
-  50% { opacity: 1; }
-  100% { opacity: 0.8; }
+  0% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.8;
+  }
 }
 
 .animate-pulse-slow {
@@ -71,15 +84,27 @@
 }
 
 @keyframes pulse-slow {
-  0% { opacity: 0.3; }
-  50% { opacity: 0.5; }
-  100% { opacity: 0.3; }
+  0% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0.3;
+  }
 }
 
 @keyframes float-slow {
-  0% { transform: translate(0, 0); }
-  50% { transform: translate(-10px, -10px); }
-  100% { transform: translate(0, 0); }
+  0% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-10px, -10px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
 }
 
 .animate-pulse-slow {
@@ -91,8 +116,13 @@
 }
 
 @keyframes cursor-blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 .animate-cursor {
@@ -101,9 +131,8 @@
 
 /* Add these new styles */
 .code-glow {
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5),
-              0 0 60px rgba(255, 215, 0, 0.1),
-              inset 0 0 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5), 0 0 60px rgba(255, 215, 0, 0.1),
+    inset 0 0 30px rgba(0, 0, 0, 0.5);
 }
 
 .animate-cursor {
@@ -111,8 +140,13 @@
 }
 
 @keyframes connection-pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.7; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.7;
+  }
 }
 
 .connection-line {
@@ -140,10 +174,43 @@
 
 /* Testimonials section glow effects */
 @keyframes pulse-glow {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .testimonial-glow {
   animation: pulse-glow 4s ease-in-out infinite;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground min-h-screen;
+    overflow-x: hidden;
+  }
+
+  /* Improve dark mode consistency */
+  html.dark {
+    color-scheme: dark;
+  }
+}
+
+/* Ensure animations work properly in production */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

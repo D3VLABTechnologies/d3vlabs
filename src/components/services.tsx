@@ -6,8 +6,6 @@ import { ArrowRight } from "lucide-react";
 import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useState, useEffect } from "react";
-import { CSSProperties } from "react";
-import { LineNumberStyle } from "react-syntax-highlighter";
 
 interface Service {
   title: string;
@@ -27,8 +25,13 @@ function useResponsiveStyles() {
       setIsSmallScreen(window.innerWidth < 640);
     };
 
+    // Initial check
     checkScreenSize();
+
+    // Add event listener
     window.addEventListener("resize", checkScreenSize);
+
+    // Cleanup
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
 
@@ -38,14 +41,14 @@ function useResponsiveStyles() {
       padding: isSmallScreen ? "0.75rem 1rem" : "1rem",
       background: "transparent",
       fontSize: isSmallScreen ? "0.75rem" : "0.875rem",
-    } as CSSProperties,
+    },
     lineNumberStyle: {
       minWidth: isSmallScreen ? "2em" : "2.5em",
       paddingRight: "1em",
       color: "#666",
-      textAlign: "right" as const,
+      textAlign: "right",
       fontSize: isSmallScreen ? "0.75rem" : "0.875rem",
-    } as LineNumberStyle,
+    },
   };
 }
 

@@ -6,32 +6,9 @@ import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "D3VLABS",
-  description: "Where innovation meets creation",
-  icons: {
-    icon: [
-      {
-        url: "/favicon.ico",
-        sizes: "any",
-      },
-      {
-        url: "/icon.png",
-        type: "image/png",
-        sizes: "512x512",
-      },
-    ],
-    apple: {
-      url: "/apple-icon.png",
-      type: "image/png",
-      sizes: "192x192",
-    },
-    other: [
-      {
-        rel: "apple-touch-icon",
-        url: "/apple-icon.png",
-      },
-    ],
-  },
+  title: "D3V.LAB - Where Innovation Meets Creation",
+  description:
+    "Pioneering the future through cutting-edge software and hardware solutions.",
 };
 
 export default function RootLayout({
@@ -40,8 +17,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
-      <body className={inter.className}>
+    <html lang="en" className="dark scroll-smooth">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
+      <body
+        className={`${inter.className} antialiased bg-background text-foreground`}
+      >
         {children}
         <Toaster position="top-right" theme="dark" />
       </body>

@@ -19,6 +19,7 @@ export function Hero() {
               transition={{ duration: 0.8 }}
             >
               <motion.h1
+                as="h1"
                 className="text-6xl md:text-8xl font-bold tracking-tight"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -27,6 +28,7 @@ export function Hero() {
                 Innovate.
               </motion.h1>
               <motion.h1
+                as="h1"
                 className="text-6xl md:text-8xl font-bold tracking-tight text-primary"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -35,6 +37,7 @@ export function Hero() {
                 Create.
               </motion.h1>
               <motion.h1
+                as="h1"
                 className="text-6xl md:text-8xl font-bold tracking-tight"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -101,10 +104,7 @@ export function Hero() {
                     <span className="text-blue-400">import</span>{" "}
                     <span className="text-yellow-300">{"{ D3V }"}</span>{" "}
                     <span className="text-blue-400">from</span>{" "}
-                    <span className="text-green-300">
-                      &apos;@d3v/core&apos;
-                    </span>
-                    ;
+                    <span className="text-green-300">'@d3v/core'</span>;
                   </CodeLine>
 
                   <CodeLine delay={0.4}>
