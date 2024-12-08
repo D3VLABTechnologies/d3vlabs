@@ -19,7 +19,6 @@ export function Hero() {
               transition={{ duration: 0.8 }}
             >
               <motion.h1
-                as="h1"
                 className="text-6xl md:text-8xl font-bold tracking-tight"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -28,7 +27,6 @@ export function Hero() {
                 Innovate.
               </motion.h1>
               <motion.h1
-                as="h1"
                 className="text-6xl md:text-8xl font-bold tracking-tight text-primary"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -37,7 +35,6 @@ export function Hero() {
                 Create.
               </motion.h1>
               <motion.h1
-                as="h1"
                 className="text-6xl md:text-8xl font-bold tracking-tight"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -46,7 +43,6 @@ export function Hero() {
                 Transform.
               </motion.h1>
               <motion.p
-                as="p"
                 className="text-2xl md:text-xl text-gray-400 mt-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -56,7 +52,6 @@ export function Hero() {
                 <span className="text-primary">creation</span>
               </motion.p>
               <motion.p
-                as="p"
                 className="text-sm text-gray-500 mt-4 max-w-xl"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
