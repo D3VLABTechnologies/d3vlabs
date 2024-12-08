@@ -101,7 +101,10 @@ export function Hero() {
                     <span className="text-blue-400">import</span>{" "}
                     <span className="text-yellow-300">{"{ D3V }"}</span>{" "}
                     <span className="text-blue-400">from</span>{" "}
-                    <span className="text-green-300">'@d3v/core'</span>;
+                    <span className="text-green-300">
+                      &apos;@d3v/core&apos;
+                    </span>
+                    ;
                   </CodeLine>
 
                   <CodeLine delay={0.4}>
