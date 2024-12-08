@@ -40,7 +40,7 @@ export function Testimonials() {
         "We now have a robust community platform tailored for real estate developers. The features and design are spot-on!",
       description: "Perfect solution for our niche!",
       author: {
-        name: "Nana-Yao Nsoah",
+        name: "Ebenezer Incoom",
         role: "Co-Founder | HAUSTALKS",
         avatar: "/avatars/haustalks.png",
       },
@@ -57,12 +57,12 @@ export function Testimonials() {
     },
     {
       quote:
-        "Your banking app streamlined our operations and enhanced customer experience. The management tools have also improved our workflows significantly.",
-      description: "Modernizing rural banking!",
+        "The website you built for our dental clinic has truly transformed our online presence! Patients can now easily book appointments, and the design perfectly reflects our brand. The feedback has been overwhelmingly positive.",
+      description: "A flawless digital experience!",
       author: {
-        name: "Henry Ofori Asante",
-        role: "Anyinam Branch Manager | KWAHU PRASO RURAL BANK",
-        avatar: "/avatars/kwahu.jpeg",
+        name: "General Manager",
+        role: "AKCESS DENTAL CLINIC",
+        avatar: "/avatars/akcess.png",
       },
     },
   ];

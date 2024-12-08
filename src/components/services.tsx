@@ -171,9 +171,14 @@ export class UserController {
             transition={{ delay: 0.1 }}
             className="text-xl sm:text-2xl text-gray-400"
           >
-            What do you want to [code, build, debug, deploy,
+            What do you want to [<span className="text-blue-400">code</span>,{" "}
+            <span className="text-green-400">build</span>,{" "}
+            <span className="text-red-400">debug</span>,{" "}
+            <span className="text-purple-400">deploy</span>,
             <br className="hidden sm:block" />
-            collaborate on, analyze, learn] today?
+            <span className="text-yellow-400">collaborate on</span>,{" "}
+            <span className="text-pink-400">analyze</span>,{" "}
+            <span className="text-cyan-400">learn</span>] today?
           </motion.h2>
         </div>
 

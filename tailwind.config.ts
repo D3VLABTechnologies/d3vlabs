@@ -43,6 +43,23 @@ const config: Config = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      animation: {
+        "spin-slow": "spin 8s linear infinite",
+        pulse: "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        float: "float 10s ease-in-out infinite",
+      },
+      keyframes: {
+        float: {
+          "0%, 100%": { transform: "translateY(0) translateX(0)" },
+          "25%": { transform: "translateY(-10px) translateX(10px)" },
+          "50%": { transform: "translateY(0) translateX(20px)" },
+          "75%": { transform: "translateY(10px) translateX(10px)" },
+        },
+        pulse: {
+          "0%, 100%": { opacity: "0.4" },
+          "50%": { opacity: "0.8" },
+        },
+      },
     },
   },
   plugins: [],
