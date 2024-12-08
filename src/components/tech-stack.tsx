@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 
 interface Connection {
   from: string;
@@ -11,85 +11,88 @@ interface Connection {
 }
 
 export function TechStack() {
-  const techIcons = [
-    // Top row - Adjusted positions for better mobile/tablet display
-    {
-      icon: "/icons/python.svg",
-      name: "Python",
-      x: "30%", // Using percentages for better responsiveness
-      y: "20%",
-      mobileX: "25%",
-      mobileY: "15%",
-    },
-    {
-      icon: "/icons/next.svg",
-      name: "Next.js",
-      x: "50%",
-      y: "20%",
-      mobileX: "50%",
-      mobileY: "15%",
-    },
-    {
-      icon: "/icons/tailwind.svg",
-      name: "Tailwind",
-      x: "70%",
-      y: "20%",
-      mobileX: "75%",
-      mobileY: "15%",
-    },
+  const techIcons = useMemo(
+    () => [
+      // Top row - Adjusted positions for better mobile/tablet display
+      {
+        icon: "/icons/python.svg",
+        name: "Python",
+        x: "30%", // Using percentages for better responsiveness
+        y: "20%",
+        mobileX: "25%",
+        mobileY: "15%",
+      },
+      {
+        icon: "/icons/next.svg",
+        name: "Next.js",
+        x: "50%",
+        y: "20%",
+        mobileX: "50%",
+        mobileY: "15%",
+      },
+      {
+        icon: "/icons/tailwind.svg",
+        name: "Tailwind",
+        x: "70%",
+        y: "20%",
+        mobileX: "75%",
+        mobileY: "15%",
+      },
 
-    // Middle row
-    {
-      icon: "/icons/aws.svg",
-      name: "AWS",
-      x: "25%",
-      y: "50%",
-      mobileX: "25%",
-      mobileY: "50%",
-    },
-    {
-      icon: "/icons/react.svg",
-      name: "React",
-      x: "45%",
-      y: "50%",
-      mobileX: "50%",
-      mobileY: "50%",
-    },
-    {
-      icon: "/icons/docker.svg",
-      name: "Docker",
-      x: "65%",
-      y: "50%",
-      mobileX: "75%",
-      mobileY: "50%",
-    },
+      // Middle row
+      {
+        icon: "/icons/aws.svg",
+        name: "AWS",
+        x: "25%",
+        y: "50%",
+        mobileX: "25%",
+        mobileY: "50%",
+      },
+      {
+        icon: "/icons/react.svg",
+        name: "React",
+        x: "45%",
+        y: "50%",
+        mobileX: "50%",
+        mobileY: "50%",
+      },
+      {
+        icon: "/icons/docker.svg",
+        name: "Docker",
+        x: "65%",
+        y: "50%",
+        mobileX: "75%",
+        mobileY: "50%",
+      },
 
-    // Bottom row
-    {
-      icon: "/icons/swift.svg",
-      name: "Swift",
-      x: "30%",
-      y: "80%",
-      mobileX: "25%",
-      mobileY: "85%",
-    },
-    {
-      icon: "/icons/github.svg",
-      name: "GitHub",
-      x: "50%",
-      y: "80%",
-      mobileX: "50%",
-      mobileY: "85%",
-    },
-    {
-      icon: "/icons/node.svg",
-      name: "Node.js",
-      x: "70%",
-      y: "80%",
-      mobileX: "75%",
-      mobileY: "85%",
-    },
-  ];
+      // Bottom row
+      {
+        icon: "/icons/swift.svg",
+        name: "Swift",
+        x: "30%",
+        y: "80%",
+        mobileX: "25%",
+        mobileY: "85%",
+      },
+      {
+        icon: "/icons/github.svg",
+        name: "GitHub",
+        x: "50%",
+        y: "80%",
+        mobileX: "50%",
+        mobileY: "85%",
+      },
+      {
+        icon: "/icons/node.svg",
+        name: "Node.js",
+        x: "70%",
+        y: "80%",
+        mobileX: "75%",
+        mobileY: "85%",
+      },
+    ],
+    []
+  );
 
   const [paths, setPaths] = useState<string[]>([]);
   const [isMobile, setIsMobile] = useState(false);
@@ -123,7 +126,7 @@ export function TechStack() {
     }
 
     return generatePath(from, to);
-  }, [generatePath]);
+  }, [generatePath, techIcons]);
 
   useEffect(() => {
     const checkMobile = () => {

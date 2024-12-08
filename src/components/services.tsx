@@ -1,12 +1,13 @@
 "use client";
 
+import * as React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useState, useEffect } from "react";
-import type { TextAlign } from "react-syntax-highlighter";
+import type { SyntaxHighlighterProps } from "react-syntax-highlighter";
 
 interface Service {
   title: string;
@@ -17,6 +18,8 @@ interface Service {
   position: "left" | "right";
   language: string;
 }
+
+type TextAlign = "left" | "right" | "center";
 
 function useResponsiveStyles() {
   const [isSmallScreen, setIsSmallScreen] = useState(false);
@@ -47,9 +50,9 @@ function useResponsiveStyles() {
       minWidth: "2.5em",
       paddingRight: "1em",
       color: "#666",
-      textAlign: "right" as TextAlign,
+      textAlign: "right" as const,
       fontSize: "0.8em",
-    },
+    } as React.CSSProperties,
   };
 }
 

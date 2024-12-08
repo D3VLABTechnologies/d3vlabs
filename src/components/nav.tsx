@@ -64,6 +64,9 @@ export function Nav() {
                   className="h-8 w-auto"
                   priority
                 />
+                <span className="text-xl font-bold ml-2 bg-gradient-to-r from-white/10 to-[#eac01a] bg-clip-text text-transparent">
+                  D3V.LABs
+                </span>
               </Link>
 
               {/* Mobile menu button */}
