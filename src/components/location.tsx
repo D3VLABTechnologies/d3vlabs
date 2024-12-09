@@ -2,25 +2,69 @@
 
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
+import Link from "next/link";
+
+const backgroundImages = [
+  "https://images.unsplash.com/photo-1577948000111-9c970dfe3743?w=1920&q=80",
+  "https://images.unsplash.com/photo-1470723710355-95304d8aece4?w=1920&q=80",
+  "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1920&q=80",
+  "https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=1920&q=80",
+  "https://images.unsplash.com/photo-1573108724029-4c46571d6490?w=1920&q=80",
+  "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80",
+  "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80",
+  "https://images.unsplash.com/photo-1538582709238-0a503bd5ae04?w=1920&q=80",
+  "https://images.unsplash.com/photo-1545893835-abaa50cbe628?w=1920&q=80",
+  "https://images.unsplash.com/photo-1514214246283-d427a95c5d2f?w=1920&q=80",
+  "https://images.unsplash.com/photo-1507090960745-b32f65d3113a?w=1920&q=80",
+  "https://images.unsplash.com/photo-1496588152823-86ff7695e68f?w=1920&q=80",
+  "https://images.unsplash.com/photo-1557409518-691ebcd96038?w=1920&q=80",
+  "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1920&q=80",
+  "https://images.unsplash.com/photo-1549893072-4bc678117f45?w=1920&q=80",
+  "https://images.unsplash.com/photo-1504883303951-581cbf120aa4?w=1920&q=80",
+  "https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=1920&q=80",
+  "https://images.unsplash.com/photo-1478039414627-50a2aee2e122?w=1920&q=80",
+];
 
 export function Location() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
   const sectionRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
   });
 
+  // Image rotation effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % backgroundImages.length);
+        setIsTransitioning(false);
+      }, 1000);
+    }, 15000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.4, 1, 0.4]);
   const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 0.95]);
   const y = useTransform(scrollYProgress, [0, 0.5, 1], [50, 0, 50]);
+
+  // Google Maps link for Adenta Ritz Junction
+  const mapUrl =
+    "https://maps.google.com/?q=Adenta+Ritz+Junction,+Accra,+Ghana";
 
   return (
     <section
       ref={sectionRef}
       className="relative py-8 sm:py-12 md:py-16 lg:py-20 bg-cover bg-center min-h-[35vh] sm:min-h-[40vh] bg-fixed overflow-hidden"
       style={{
-        backgroundImage: "url('/bg1.jpg')",
+        backgroundImage: `url('${backgroundImages[currentImageIndex]}')`,
+        transition: "background-image 4s ease-in-out",
+        opacity: isTransitioning ? 0.8 : 1,
       }}
     >
       {/* Enhanced gradient overlays */}
@@ -96,13 +140,20 @@ export function Location() {
             className="relative flex-shrink-0 w-24 h-24 xs:w-28 xs:h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 lg:w-40 lg:h-40 xl:w-48 xl:h-48 
                        -mx-4 md:mx-0 md:ml-8 lg:ml-12 group order-first md:order-none mt-4 md:mt-0"
           >
-            <Image
-              src="/map.svg"
-              alt="Location Map"
-              width={192}
-              height={192}
-              className="relative w-full h-full p-3 sm:p-4 opacity-80 group-hover:opacity-100 transition-all duration-300 group-hover:scale-110"
-            />
+            <Link
+              href={mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-full h-full transform transition-transform duration-300 hover:scale-110"
+            >
+              <Image
+                src="/map.svg"
+                alt="Location Map"
+                width={192}
+                height={192}
+                className="relative w-full h-full p-3 sm:p-4 opacity-80 group-hover:opacity-100 transition-all duration-300"
+              />
+            </Link>
           </motion.div>
 
           {/* Right side - Details */}
