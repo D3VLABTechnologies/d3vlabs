@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 
 interface Connection {
   from: string;
@@ -11,6 +11,31 @@ interface Connection {
 }
 
 export function TechStack() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const animationFrameRef = useRef<number>();
+  const positionsRef = useRef<{ [key: string]: { x: number; y: number } }>({});
+  const [isMobile, setIsMobile] = useState(false);
+  const [visibleIcons, setVisibleIcons] = useState<string[]>([]);
+  const [isInitialAnimationComplete, setIsInitialAnimationComplete] =
+    useState(false);
+  const connectionOrderRef = useRef<string[]>([]);
+  const animationStartTimeRef = useRef(Date.now());
+  const lastPulseTimeRef = useRef(Date.now());
+  const activePulsesRef = useRef<
+    {
+      fromIcon: string;
+      toIcon: string;
+      progress: number;
+      colors: { start: string; end: string };
+    }[]
+  >([]);
+  const [isSectionVisible, setIsSectionVisible] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [animationPhase, setAnimationPhase] = useState<"initial" | "random">(
+    "initial"
+  );
+
   const techIcons = useMemo(
     () => [
       // Top row - Adjusted positions for better mobile/tablet display
@@ -95,7 +120,6 @@ export function TechStack() {
   );
 
   const [paths, setPaths] = useState<string[]>([]);
-  const [isMobile, setIsMobile] = useState(false);
 
   const generatePath = useCallback(
     (from: (typeof techIcons)[0], to: (typeof techIcons)[0]) => {
@@ -134,11 +158,9 @@ export function TechStack() {
     };
 
     checkMobile();
-    generateRandomConnection();
-
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
-  }, [generateRandomConnection]);
+  }, []);
 
   // Initialize paths
   useEffect(() => {
@@ -154,18 +176,366 @@ export function TechStack() {
     });
   };
 
+  // Add this effect to handle visibility detection
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setIsSectionVisible(true);
+          observer.disconnect(); // Stop observing once visible
+        }
+      },
+      { threshold: 0.2 } // Start when 20% of the section is visible
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Modify the icon appearance effect
+  useEffect(() => {
+    if (!isSectionVisible) return;
+
+    const shuffledOrder = techIcons
+      .map((icon) => icon.name)
+      .sort(() => Math.random() - 0.5);
+    connectionOrderRef.current = shuffledOrder;
+
+    // Start the sequential animation with slower timing
+    shuffledOrder.forEach((iconName, index) => {
+      setTimeout(() => {
+        setVisibleIcons((prev) => [...prev, iconName]);
+
+        // Add pulse for the connection to next icon
+        if (index < shuffledOrder.length - 1) {
+          const nextIconName = shuffledOrder[index + 1];
+          activePulsesRef.current.push({
+            fromIcon: iconName,
+            toIcon: nextIconName,
+            progress: 0,
+            colors: glowColors[index % glowColors.length],
+          });
+        }
+
+        // After last icon appears, switch to random mode
+        if (index === shuffledOrder.length - 1) {
+          setTimeout(() => {
+            setAnimationPhase("random");
+            setIsInitialAnimationComplete(true);
+          }, 2000); // Increased delay before random mode
+        }
+      }, index * 800); // Increased delay between icons
+    });
+  }, [isSectionVisible]);
+
+  // Add this array at the top of the component
+  const glowColors = [
+    { start: "#FF0080", end: "#7928CA" }, // Pink to Purple
+    { start: "#7928CA", end: "#FF0080" }, // Purple to Pink
+    { start: "#00DFD8", end: "#007CF0" }, // Cyan to Blue
+    { start: "#007CF0", end: "#00DFD8" }, // Blue to Cyan
+    { start: "#FF4D4D", end: "#F9CB28" }, // Red to Yellow
+    { start: "#F9CB28", end: "#FF4D4D" }, // Yellow to Red
+  ];
+
+  // Add this helper function at the component level (before useEffect)
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
+  // Modify the canvas effect to depend on section visibility
+  useEffect(() => {
+    if (!isSectionVisible) return; // Don't start if section is not visible
+
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const updateCanvasSize = () => {
+      const rect = container.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    };
+
+    const updateIconPositions = () => {
+      const icons = container.querySelectorAll(".tech-icon");
+      const newPositions: { [key: string]: { x: number; y: number } } = {};
+
+      icons.forEach((icon) => {
+        const rect = icon.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+        newPositions[icon.getAttribute("data-name") || ""] = {
+          x: rect.left - containerRect.left + rect.width / 2,
+          y: rect.top - containerRect.top + rect.height / 2,
+        };
+      });
+
+      positionsRef.current = newPositions;
+    };
+
+    const handleResize = () => {
+      updateCanvasSize();
+      updateIconPositions();
+      // Force redraw when window size changes
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    };
+
+    const drawConnections = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Track animation progress
+      const currentTime = Date.now();
+      const timeSinceStart = currentTime - animationStartTimeRef.current;
+      const fullConnectionDuration = 2000; // 2 seconds for full connection animation
+
+      // Before the connection drawing loop, add pulse management
+      const pulseInterval = 1000; // New pulse every second
+
+      // Pulse management based on animation phase
+      if (animationPhase === "random") {
+        // Create new random pulse if enough time has passed
+        if (currentTime - lastPulseTimeRef.current > pulseInterval) {
+          const possibleConnections = Object.entries(positionsRef.current)
+            .filter(([name1]) => visibleIcons.includes(name1))
+            .flatMap(([name1]) =>
+              Object.entries(positionsRef.current)
+                .filter(
+                  ([name2]) => visibleIcons.includes(name2) && name1 !== name2
+                )
+                .map(([name2]) => ({ fromIcon: name1, toIcon: name2 }))
+            );
+
+          if (possibleConnections.length > 0) {
+            const randomConnection =
+              possibleConnections[
+                Math.floor(Math.random() * possibleConnections.length)
+              ];
+            const colorIndex = Math.floor(Math.random() * glowColors.length);
+
+            activePulsesRef.current.push({
+              ...randomConnection,
+              progress: 0,
+              colors: glowColors[colorIndex],
+            });
+
+            lastPulseTimeRef.current = currentTime;
+          }
+        }
+      }
+
+      // Update and draw existing pulses
+      activePulsesRef.current = activePulsesRef.current.filter((pulse) => {
+        const fromPos = positionsRef.current[pulse.fromIcon];
+        const toPos = positionsRef.current[pulse.toIcon];
+
+        if (!fromPos || !toPos) return false;
+
+        // Slower animation speed
+        const speedMultiplier = animationPhase === "initial" ? 0.6 : 0.4;
+        pulse.progress += 0.01 * speedMultiplier; // Reduced base speed
+
+        if (pulse.progress >= 1) return false;
+
+        // Draw pulse with enhanced glow for initial phase
+        const pulseX = fromPos.x + (toPos.x - fromPos.x) * pulse.progress;
+        const pulseY = fromPos.y + (toPos.y - fromPos.y) * pulse.progress;
+
+        ctx.beginPath();
+        ctx.arc(
+          pulseX,
+          pulseY,
+          animationPhase === "initial" ? 5 : 4,
+          0,
+          Math.PI * 2
+        );
+
+        const gradientSize = animationPhase === "initial" ? 40 : 30;
+        const pulseGradient = ctx.createRadialGradient(
+          pulseX,
+          pulseY,
+          0,
+          pulseX,
+          pulseY,
+          gradientSize
+        );
+
+        const glowIntensity = animationPhase === "initial" ? 0.7 : 0.5;
+        pulseGradient.addColorStop(
+          0,
+          hexToRgba(pulse.colors.start, glowIntensity)
+        );
+        pulseGradient.addColorStop(1, hexToRgba(pulse.colors.end, 0));
+
+        ctx.fillStyle = pulseGradient;
+        ctx.shadowColor = pulse.colors.start;
+        ctx.shadowBlur = animationPhase === "initial" ? 20 : 15;
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+
+        return pulse.progress < 1;
+      });
+
+      // Only draw connections for visible icons
+      Object.entries(positionsRef.current).forEach(([name1, pos1], index1) => {
+        if (!visibleIcons.includes(name1)) return;
+
+        // Don't draw connections on mobile/tablet
+        if (window.innerWidth < 1024) return; // 1024px is the lg breakpoint in Tailwind
+
+        Object.entries(positionsRef.current).forEach(
+          ([name2, pos2], index2) => {
+            if (!visibleIcons.includes(name2) || name1 === name2) return;
+
+            // Check if this connection should be drawn based on animation progress
+            const icon1Index = connectionOrderRef.current.indexOf(name1);
+            const icon2Index = connectionOrderRef.current.indexOf(name2);
+
+            let shouldDraw = false;
+            let connectionProgress = 1;
+
+            if (!isInitialAnimationComplete) {
+              // During initial animation, only connect consecutive icons
+              shouldDraw = Math.abs(icon1Index - icon2Index) <= 1;
+            } else {
+              // After initial animation, gradually show all connections
+              const progressRatio = Math.min(
+                1,
+                timeSinceStart / fullConnectionDuration
+              );
+
+              // Calculate distance between icons in the order
+              const orderDistance = Math.abs(icon1Index - icon2Index);
+              const maxDistance = connectionOrderRef.current.length;
+              const normalizedDistance = orderDistance / maxDistance;
+
+              // Draw connection if we've progressed far enough
+              shouldDraw = normalizedDistance <= progressRatio;
+              connectionProgress = shouldDraw
+                ? Math.min(1, (progressRatio - normalizedDistance) * 2)
+                : 0;
+            }
+
+            if (shouldDraw) {
+              const dx = pos2.x - pos1.x;
+              const dy = pos2.y - pos1.y;
+              const distance = Math.sqrt(dx * dx + dy * dy);
+
+              if (distance < 300) {
+                const opacity =
+                  Math.max(0.1, 1 - distance / 300) * connectionProgress;
+
+                // Select color pair based on indices
+                const colorIndex = (index1 + index2) % glowColors.length;
+                const colors = glowColors[colorIndex];
+
+                // Create gradient for the connection line
+                const gradient = ctx.createLinearGradient(
+                  pos1.x,
+                  pos1.y,
+                  pos2.x * connectionProgress +
+                    pos1.x * (1 - connectionProgress),
+                  pos2.y * connectionProgress +
+                    pos1.y * (1 - connectionProgress)
+                );
+
+                gradient.addColorStop(
+                  0,
+                  hexToRgba(colors.start, opacity * 0.5)
+                );
+                gradient.addColorStop(1, hexToRgba(colors.end, opacity * 0.5));
+
+                // Enhanced glow effect
+                ctx.shadowColor = colors.start;
+                ctx.shadowBlur = 15;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+
+                // Draw connection line with gradient
+                ctx.beginPath();
+                ctx.strokeStyle = gradient;
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.moveTo(pos1.x, pos1.y);
+                ctx.lineTo(
+                  pos2.x * connectionProgress +
+                    pos1.x * (1 - connectionProgress),
+                  pos2.y * connectionProgress +
+                    pos1.y * (1 - connectionProgress)
+                );
+                ctx.stroke();
+
+                // Reset shadow effect
+                ctx.shadowBlur = 0;
+              }
+            }
+          }
+        );
+      });
+
+      animationFrameRef.current = requestAnimationFrame(drawConnections);
+    };
+
+    // Reset animation start time when initial animation completes
+    if (isInitialAnimationComplete) {
+      animationStartTimeRef.current = Date.now();
+    }
+
+    // Initial setup
+    updateCanvasSize();
+    updateIconPositions();
+    drawConnections();
+
+    // Event listeners
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [
+    visibleIcons,
+    isInitialAnimationComplete,
+    isSectionVisible,
+    animationPhase,
+  ]); // Add isSectionVisible to dependencies
+
   return (
     <section
+      ref={sectionRef}
       id="tech-stack"
       className="py-8 md:py-12 relative overflow-hidden px-4 md:px-16"
     >
-      <div className="flex flex-col lg:flex-row gap-8 lg:gap-20">
+      <div
+        ref={containerRef}
+        className="flex flex-col lg:flex-row gap-8 lg:gap-20 relative"
+      >
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 pointer-events-none"
+          style={{ opacity: 0.8 }}
+        />
+
         {/* Left side - Content */}
         <div className="w-full lg:w-1/3 pt-4 lg:pt-12 px-0 lg:pl-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            animate={isSectionVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.3 }} // Small delay after section becomes visible
           >
             <h2 className="text-3xl md:text-5xl lg:text-5xl font-semibold mb-4 lg:mb-6 bg-gradient-to-r from-blue-400 to-blue-200 bg-clip-text text-transparent">
               Innovative and Scalable Solutions
@@ -221,74 +591,17 @@ export function TechStack() {
           </div>
 
           <div className="absolute inset-0 scale-90 md:scale-100 origin-center">
-            {/* Moving Glow Lines */}
-            {Array.from({ length: 8 }).map((_, index) => {
-              // Randomly select start and end icons
-              const randomStart = Math.floor(Math.random() * techIcons.length);
-              let randomEnd = Math.floor(Math.random() * techIcons.length);
-
-              // Ensure we don't connect to the same icon
-              while (randomEnd === randomStart) {
-                randomEnd = Math.floor(Math.random() * techIcons.length);
-              }
-
-              const from = techIcons[randomStart];
-              const to = techIcons[randomEnd];
-
-              const fromX = parseFloat(isMobile ? from.mobileX : from.x);
-              const fromY = parseFloat(isMobile ? from.mobileY : from.y);
-              const toX = parseFloat(isMobile ? to.mobileX : to.x);
-              const toY = parseFloat(isMobile ? to.mobileY : to.y);
-
-              // Calculate the distance and angle
-              const distance = Math.sqrt(
-                Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2)
-              );
-              const angle =
-                Math.atan2(toY - fromY, toX - fromX) * (180 / Math.PI);
-
-              return (
-                <div
-                  key={`glow-line-${index}`}
-                  className="absolute top-0 left-0 w-full h-full"
-                  style={{
-                    transform: `rotate(${angle}deg)`,
-                    transformOrigin: `${fromX}% ${fromY}%`,
-                  }}
-                >
-                  <motion.div
-                    className="absolute h-[2px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent"
-                    style={{
-                      width: "40px",
-                      left: `${fromX}%`,
-                      top: `${fromY}%`,
-                    }}
-                    animate={{
-                      x: [0, distance],
-                      opacity: [0, 1, 1, 0],
-                      scale: [1, 1.2, 1],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      delay: index * 0.5,
-                      repeatDelay: Math.random() * 3 + 1,
-                      ease: "linear",
-                    }}
-                  />
-                </div>
-              );
-            })}
-
-            {/* Tech Icons */}
             {techIcons.map((tech, index) => (
               <motion.div
                 key={tech.name}
                 initial={{ opacity: 0, scale: 0.8 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                animate={
+                  visibleIcons.includes(tech.name)
+                    ? { opacity: 1, scale: 1 }
+                    : {}
+                }
                 viewport={{ once: true }}
                 transition={{
-                  delay: 0.5 + index * 0.1,
                   type: "spring",
                   stiffness: 100,
                   damping: 10,
@@ -303,7 +616,8 @@ export function TechStack() {
                 className="transform scale-100 md:scale-100"
               >
                 <div
-                  className="w-16 md:w-20 lg:w-16 h-16 md:h-20 lg:h-16 bg-[#1a1b26]/80 rounded-lg border border-white/10 backdrop-blur-sm 
+                  data-name={tech.name}
+                  className="tech-icon w-16 md:w-20 lg:w-16 h-16 md:h-20 lg:h-16 bg-[#1a1b26]/80 rounded-lg border border-white/10 backdrop-blur-sm 
                             flex items-center justify-center transition-all duration-300
                             hover:border-blue-400/50 hover:scale-110 hover:shadow-[0_0_20px_rgba(96,165,250,0.3)]
                             group"

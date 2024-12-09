@@ -1,128 +1,172 @@
-'use client'
+"use client";
 
-import { useEffect, useRef } from 'react'
-import { motion } from 'framer-motion'
+import { useEffect, useRef } from "react";
+
+interface Particle {
+  x: number;
+  y: number;
+  size: number;
+  speedX: number;
+  speedY: number;
+  color: string;
+  alpha: number;
+}
 
 export function GlowBackground() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+    const canvas = canvasRef.current;
+    if (!canvas) return;
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
     // Set canvas size
     const resizeCanvas = () => {
-      canvas.width = window.innerWidth
-      canvas.height = window.innerHeight
-      ctx.lineCap = 'round'
-      ctx.lineJoin = 'round'
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    // Particle system
+    const particles: Particle[] = [];
+    const particleCount = 100;
+    const colors = ["#4facfe", "#00f2fe", "#7b4397", "#dc2430", "#FFD700"];
+
+    // Create initial particles
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 3 + 1,
+        speedX: (Math.random() - 0.5) * 2,
+        speedY: (Math.random() - 0.5) * 2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        alpha: Math.random() * 0.5 + 0.5,
+      });
     }
 
-    resizeCanvas()
-    window.addEventListener('resize', resizeCanvas)
+    // Mouse interaction
+    let mouse = { x: 0, y: 0 };
+    canvas.addEventListener("mousemove", (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
 
-    // Line animation parameters
-    let startX = 50
-    let startY = 50
-    let currentX = startX
-    let currentY = startY
-    let targetX = startX + 100
-    let targetY = startY
-    let progress = 0
-    let glowIntensity = 0
-    let glowDirection = 1
+    // Animation parameters
+    let hue = 0;
+    const text = "D3V.LABs";
+    const fontSize = Math.min(canvas.width, canvas.height) * 0.15;
 
-    // Text parameters
-    const text = 'D3V.LABs'
-    const fontSize = Math.min(canvas.width, canvas.height) * 0.2
-    ctx.font = `bold ${fontSize}px Arial`
-    const textWidth = ctx.measureText(text).width
+    const drawText = () => {
+      ctx.save();
+      ctx.font = `bold ${fontSize}px Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
 
-    const drawBlockLetter = (letter: string, x: number, y: number, width: number, height: number) => {
-      const letterWidth = ctx.measureText(letter).width
-      const scale = Math.min(width / letterWidth, height)
-      const scaledWidth = letterWidth * scale
-      const scaledHeight = fontSize * scale
-      
-      ctx.save()
-      ctx.translate(x + (width - scaledWidth) / 2, y + height)
-      ctx.scale(scale, scale)
-      ctx.fillText(letter, 0, 0)
-      ctx.restore()
-    }
+      // Create gradient for text
+      const gradient = ctx.createLinearGradient(
+        canvas.width / 2 - 100,
+        canvas.height / 2,
+        canvas.width / 2 + 100,
+        canvas.height / 2
+      );
+      gradient.addColorStop(0, `hsla(${hue}, 100%, 50%, 0.8)`);
+      gradient.addColorStop(0.5, `hsla(${hue + 60}, 100%, 50%, 0.8)`);
+      gradient.addColorStop(1, `hsla(${hue + 120}, 100%, 50%, 0.8)`);
+
+      ctx.fillStyle = gradient;
+      ctx.shadowColor = `hsla(${hue}, 100%, 50%, 0.8)`;
+      ctx.shadowBlur = 20;
+      ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+      ctx.restore();
+    };
+
+    const connectParticles = () => {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 150) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(255, 255, 255, ${
+              0.1 * (1 - distance / 150)
+            })`;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+    };
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Update glow intensity
-      glowIntensity += 0.02 * glowDirection
-      if (glowIntensity >= 1 || glowIntensity <= 0.3) {
-        glowDirection *= -1
-      }
+      particles.forEach((particle, index) => {
+        // Update particle position
+        particle.x += particle.speedX;
+        particle.y += particle.speedY;
 
-      // Draw the glowing line
-      ctx.beginPath()
-      ctx.moveTo(startX, startY)
-      ctx.lineTo(currentX, currentY)
-      
-      // Create glow effect for line
-      ctx.shadowColor = '#FFD700'
-      ctx.shadowBlur = 20 * glowIntensity
-      ctx.strokeStyle = `rgba(255, 215, 0, ${glowIntensity * 0.5})`
-      ctx.lineWidth = 2
-      ctx.stroke()
+        // Mouse interaction
+        const dx = mouse.x - particle.x;
+        const dy = mouse.y - particle.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < 100) {
+          const angle = Math.atan2(dy, dx);
+          particle.x -= Math.cos(angle) * 1;
+          particle.y -= Math.sin(angle) * 1;
+        }
 
-      // Draw block letters with glow
-      const blockWidth = canvas.width / text.length
-      const blockHeight = canvas.height * 0.8
-      const letterStartY = (canvas.height - blockHeight) / 2
+        // Bounce off edges
+        if (particle.x < 0 || particle.x > canvas.width) particle.speedX *= -1;
+        if (particle.y < 0 || particle.y > canvas.height) particle.speedY *= -1;
 
-      ctx.fillStyle = `rgba(255, 215, 0, ${0.1 + glowIntensity * 0.1})`
-      ctx.shadowColor = '#FFD700'
-      ctx.shadowBlur = 30 * glowIntensity
+        // Draw particle
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${hexToRgb(particle.color)}, ${particle.alpha})`;
+        ctx.fill();
 
-      for (let i = 0; i < text.length; i++) {
-        drawBlockLetter(text[i], i * blockWidth, letterStartY, blockWidth, blockHeight)
-      }
+        // Add glow effect
+        ctx.shadowColor = particle.color;
+        ctx.shadowBlur = 15;
+        ctx.fill();
+      });
 
-      // Reset shadow for next frame
-      ctx.shadowColor = 'transparent'
-      ctx.shadowBlur = 0
+      connectParticles();
+      drawText();
 
-      // Update line progress
-      if (progress < 1) {
-        progress += 0.01
-        currentX = startX + (targetX - startX) * progress
-        currentY = startY + (targetY - startY) * progress
-      } else {
-        // Reset animation with new coordinates
-        startX = currentX
-        startY = currentY
-        progress = 0
+      // Update hue for color cycling
+      hue = (hue + 0.5) % 360;
 
-        // Create geometric pattern
-        const angle = Math.random() * Math.PI * 2
-        const distance = 100
-        targetX = startX + Math.cos(angle) * distance
-        targetY = startY + Math.sin(angle) * distance
+      requestAnimationFrame(animate);
+    };
 
-        // Keep within bounds
-        targetX = Math.max(50, Math.min(canvas.width - 50, targetX))
-        targetY = Math.max(50, Math.min(canvas.height - 50, targetY))
-      }
-
-      requestAnimationFrame(animate)
-    }
-
-    animate()
+    animate();
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas)
-    }
-  }, [])
+      window.removeEventListener("resize", resizeCanvas);
+    };
+  }, []);
+
+  // Helper function to convert hex to rgb
+  function hexToRgb(hex: string): string {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(
+          result[3],
+          16
+        )}`
+      : "255, 255, 255";
+  }
 
   return (
     <div className="fixed inset-0 -z-10">
@@ -130,10 +174,9 @@ export function GlowBackground() {
       <canvas
         ref={canvasRef}
         className="absolute inset-0"
-        style={{ opacity: 0.7 }}
+        style={{ opacity: 1 }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80" />
     </div>
-  )
+  );
 }
-

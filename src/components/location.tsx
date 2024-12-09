@@ -24,6 +24,8 @@ const backgroundImages = [
   "https://images.unsplash.com/photo-1504883303951-581cbf120aa4?w=1920&q=80",
   "https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=1920&q=80",
   "https://images.unsplash.com/photo-1478039414627-50a2aee2e122?w=1920&q=80",
+  "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=1920&q=80",
+  "/public/signature.jpg",
 ];
 
 export function Location() {

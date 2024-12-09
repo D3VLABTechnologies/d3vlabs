@@ -7,6 +7,7 @@ import { Testimonials } from "@/components/testimonials";
 import { CTA } from "@/components/cta";
 import { Footer } from "@/components/footer";
 import { Location } from "@/components/location";
+import { GlowBackground } from "@/components/glow-background";
 
 export default function Home() {
   return (
@@ -20,6 +21,7 @@ export default function Home() {
       <CTA />
       <Location />
       <Footer />
+      {/* <GlowBackground /> */}
     </div>
   );
 }
