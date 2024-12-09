@@ -25,16 +25,16 @@ export function Testimonials() {
         avatar: "/avatars/dulcis.jpg",
       },
     },
-    {
-      quote:
-        "The social media app your team developed helped us connect thousands of users seamlessly. The mobile and web interfaces are exceptional!",
-      description: "A game-changer for our platform!",
-      author: {
-        name: "Jason Hutchingson",
-        role: "Co-Founder | JIGXT",
-        avatar: "/avatars/jigxt.jpeg",
-      },
-    },
+    // {
+    //   quote:
+    //     "The social media app your team developed helped us connect thousands of users seamlessly. The mobile and web interfaces are exceptional!",
+    //   description: "A game-changer for our platform!",
+    //   author: {
+    //     name: "Jason Hutchingson",
+    //     role: "Co-Founder | JIGXT",
+    //     avatar: "/avatars/jigxt.jpeg",
+    //   },
+    // },
     {
       quote:
         "We now have a robust community platform tailored for real estate developers. The features and design are spot-on!",
@@ -50,7 +50,7 @@ export function Testimonials() {
         "The NFT marketplace you built exceeded our expectations. The UI/UX and blockchain integration are top-notch. Your seamless integration of the blockchain was a breeze!",
       description: "Leading the Web3 revolution!",
       author: {
-        name: "Daniel Gyamfi",
+        name: "D.G",
         role: "CEO | ZKM DAO",
         avatar: "/avatars/zkm.jpeg",
       },
