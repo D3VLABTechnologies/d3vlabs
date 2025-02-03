@@ -25,16 +25,16 @@ export function Testimonials() {
         avatar: "/avatars/dulcis.jpg",
       },
     },
-    // {
-    //   quote:
-    //     "The social media app your team developed helped us connect thousands of users seamlessly. The mobile and web interfaces are exceptional!",
-    //   description: "A game-changer for our platform!",
-    //   author: {
-    //     name: "Jason Hutchingson",
-    //     role: "Co-Founder | JIGXT",
-    //     avatar: "/avatars/jigxt.jpeg",
-    //   },
-    // },
+    {
+      quote:
+        "The social media app your team designed helped us connect thousands of users seamlessly. The mobile and web interfaces are exceptional!",
+      description: "A game-changer for our platform!",
+      author: {
+        name: "Jason Hutchingson",
+        role: "Co-Founder | JIGXT",
+        avatar: "/avatars/jigxt.jpeg",
+      },
+    },
     {
       quote:
         "We now have a robust community platform tailored for real estate developers. The features and design are spot-on!",

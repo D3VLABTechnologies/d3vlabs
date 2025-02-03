@@ -8,6 +8,7 @@ import { CTA } from "@/components/cta";
 import { Footer } from "@/components/footer";
 import { Location } from "@/components/location";
 import { GlowBackground } from "@/components/glow-background";
+import { ProjectGallery } from "@/components/project-gallery";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
       <Hero />
       <TechStack />
       <Services />
+      <ProjectGallery />
       <Testimonials />
       <CTA />
       <Location />
