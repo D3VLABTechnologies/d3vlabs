@@ -24,19 +24,52 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
   // Initialize EmailJS
   useEffect(() => {
-    emailjs.init(process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!);
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+    if (publicKey) {
+      emailjs.init(publicKey);
+    }
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // Check if EmailJS is configured
+    const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY;
+    const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID;
+    const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID;
+
+    if (!publicKey || !serviceId || !templateId) {
+      // Fallback: Show success message and copy contact info
+      toast.success(
+        "Thank you for your message! Please contact us directly at info@d3vlabs.com"
+      );
+      console.log("Contact form data:", formData);
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      });
+      setIsSubmitting(false);
+      onClose();
+      return;
+    }
+
+    // Log configuration for debugging (remove in production)
+    console.log("EmailJS Config:", {
+      hasPublicKey: !!publicKey,
+      hasServiceId: !!serviceId,
+      hasTemplateId: !!templateId,
+      serviceId: serviceId,
+    });
+
     try {
       const result = await emailjs.sendForm(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+        serviceId,
+        templateId,
         form.current!,
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
+        publicKey
       );
 
       if (result.text === "OK") {
@@ -50,8 +83,18 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
         onClose();
       }
     } catch (error: any) {
-      toast.error("Failed to send message. Please try again.");
       console.error("Email error:", error.text || error);
+
+      // Handle specific Zoho access restriction error
+      if (error.text && error.text.includes("Access Restricted")) {
+        toast.error(
+          "Email service temporarily unavailable. Please contact us directly at info@d3vlabs.com"
+        );
+      } else {
+        toast.error(
+          "Failed to send message. Please try again or contact us directly at info@d3vlabs.com"
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -85,7 +128,18 @@ export function ContactModal({ isOpen, onClose }: ContactModalProps) {
                 <div className="p-6">
                   {/* Header */}
                   <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-xl font-semibold">Contact Us</h2>
+                    <div>
+                      <h2 className="text-xl font-semibold">Contact Us</h2>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Or reach us directly at{" "}
+                        <a
+                          href="mailto:info@d3vlabs.com"
+                          className="text-[#eac01a] hover:underline"
+                        >
+                          info@d3vlabs.com
+                        </a>
+                      </p>
+                    </div>
                     <button
                       onClick={onClose}
                       className="text-gray-400 hover:text-white transition-colors p-1 hover:bg-white/5 rounded-lg"
