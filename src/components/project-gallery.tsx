@@ -105,7 +105,7 @@ const projects: Project[] = [
     id: 4,
     title: "Haustalks",
     description:
-      "Real estate platform connecting property owners with potential buyers and renters.",
+      "Real estate platform.",
     type: "web",
     images: [
       "/projects/haustalks/1.png",
