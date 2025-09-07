@@ -4,10 +4,39 @@ import * as React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
-import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useState, useEffect } from "react";
-import type { SyntaxHighlighterProps } from "react-syntax-highlighter";
+import hljs from "highlight.js";
+import "highlight.js/styles/github-dark.css";
+
+// Syntax highlighted code display component
+const CodeBlock = ({
+  children,
+  language,
+}: {
+  children: string;
+  language: string;
+}) => {
+  const [highlightedCode, setHighlightedCode] = useState("");
+
+  useEffect(() => {
+    try {
+      const highlighted = hljs.highlight(children, { language }).value;
+      setHighlightedCode(highlighted);
+    } catch (error) {
+      // Fallback to plain text if highlighting fails
+      setHighlightedCode(children);
+    }
+  }, [children, language]);
+
+  return (
+    <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm font-mono border border-gray-700">
+      <code
+        className={`language-${language}`}
+        dangerouslySetInnerHTML={{ __html: highlightedCode }}
+      />
+    </pre>
+  );
+};
 
 interface Service {
   title: string;
@@ -21,44 +50,7 @@ interface Service {
 
 type TextAlign = "left" | "right" | "center";
 
-function useResponsiveStyles() {
-  const [isSmallScreen, setIsSmallScreen] = useState(false);
-
-  useEffect(() => {
-    const checkScreenSize = () => {
-      setIsSmallScreen(window.innerWidth < 640);
-    };
-
-    // Initial check
-    checkScreenSize();
-
-    // Add event listener
-    window.addEventListener("resize", checkScreenSize);
-
-    // Cleanup
-    return () => window.removeEventListener("resize", checkScreenSize);
-  }, []);
-
-  return {
-    customStyle: {
-      margin: 0,
-      padding: isSmallScreen ? "0.75rem 1rem" : "1rem",
-      background: "transparent",
-      fontSize: isSmallScreen ? "0.75rem" : "0.875rem",
-    },
-    lineNumberStyle: {
-      minWidth: "2.5em",
-      paddingRight: "1em",
-      color: "#666",
-      textAlign: "right" as const,
-      fontSize: "0.8em",
-    } as React.CSSProperties,
-  };
-}
-
 export function Services() {
-  const { customStyle, lineNumberStyle } = useResponsiveStyles();
-
   const services: Service[] = [
     {
       title: "Web Development",
@@ -245,15 +237,9 @@ export class UserController {
                   </div>
                   {/* Code Content */}
                   <div className="max-h-[200px] sm:max-h-[240px] lg:max-h-[280px] overflow-auto custom-scrollbar">
-                    <SyntaxHighlighter
-                      language={service.language}
-                      style={oneDark}
-                      customStyle={customStyle}
-                      showLineNumbers={true}
-                      lineNumberStyle={lineNumberStyle}
-                    >
+                    <CodeBlock language={service.language}>
                       {service.code}
-                    </SyntaxHighlighter>
+                    </CodeBlock>
                   </div>
                 </div>
               </div>
